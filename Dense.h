@@ -13,7 +13,7 @@ class Dense {
   ActivationType get_activation  () const;
 
 
-  Matrix &operator() (Matrix const &mat);
+  Matrix operator() (Matrix const &mat);
 
 
  private:

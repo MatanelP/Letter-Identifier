@@ -15,30 +15,30 @@ ActivationType Activation::get_activation_type () const
   return _act_type;
 }
 
-Matrix &Activation::operator() (Matrix const &mat)
+Matrix Activation::operator() (Matrix const &mat)
 {
-  auto *new_mat = new Matrix (mat);
+  Matrix new_mat(mat);
   float scalar = 0;
 
   for (int i = 0; i < mat.get_rows () * mat.get_cols (); ++i)
     {
       if (_act_type == RELU)
         {
-          if ((*new_mat)[i] < 0)
+          if ((new_mat)[i] < 0)
             {
-              assign_value (*new_mat, i, 0);
+              assign_value (new_mat, i, 0);
             }
         }
       else
         {
-          scalar += assign_value (*new_mat, i, std::exp ((*new_mat)[i]));
+          scalar += assign_value (new_mat, i, std::exp ((new_mat)[i]));
         }
     }
 
   if (_act_type == SOFTMAX)
     {
-      *new_mat = (1 / scalar) * (*new_mat);
+      return (1 / scalar) * (new_mat);
     }
 
-  return *new_mat;
+  return new_mat;
 }

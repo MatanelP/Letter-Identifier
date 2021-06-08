@@ -20,11 +20,11 @@ ActivationType Dense::get_activation () const
   return act_type;
 }
 
-Matrix &Dense::operator() (Matrix const &mat)
+Matrix Dense::operator() (Matrix const &mat)
 {
-  auto *new_mat = new Matrix (weight * mat + bias);
+  Matrix new_mat(weight * mat + bias);
   Activation act (act_type);
-  return act (*new_mat);
+  return act (new_mat);
 }
 
 

@@ -22,7 +22,7 @@ class Activation {
 
   ActivationType get_activation_type () const;
 
-  Matrix &operator() (Matrix const &mat);
+  Matrix operator() (Matrix const &mat);
 
  private:
   ActivationType _act_type;

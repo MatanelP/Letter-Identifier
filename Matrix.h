@@ -52,15 +52,15 @@ class Matrix {
   friend void read_binary_file (std::ifstream &ifs, Matrix &mat);
 
   // Operators:
-  Matrix &operator+ (const Matrix &mat);
+  Matrix operator+ (const Matrix &mat);
 
   Matrix &operator= (const Matrix &mat);
 
-  Matrix &operator* (const Matrix &mat);
+  Matrix operator* (const Matrix &mat);
 
-  Matrix &operator* (float c);
+  Matrix operator* (float c);
 
-  friend Matrix &operator* (float c, Matrix &mat);
+  friend Matrix operator* (float c, Matrix &mat);
 
   Matrix &operator+= (const Matrix &mat);
 
@@ -77,7 +77,7 @@ class Matrix {
   friend std::ostream &operator<< (std::ostream &os, Matrix &mat);
 
  private:
-  matrix_dims *_dims;
+  matrix_dims _dims;
   float *_data;
 
 };
