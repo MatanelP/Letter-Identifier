@@ -217,16 +217,17 @@ float Matrix::operator[] (int i) const
 void read_binary_file (std::ifstream &ifs, Matrix &mat)
 {
   ifs.seekg (0, std::ifstream::end);
-  auto matByteSize = mat.get_cols () * mat.get_rows () * sizeof (float);
-  if ((size_t) ifs.tellg () != matByteSize)
+  auto mat_byte_size = mat.get_cols () * mat.get_rows () * sizeof (float);
+  if ((size_t) ifs.tellg () != mat_byte_size)
     {
-//      TODO: make sure it is the right kind of error, also, what is th file is larger then the matrix
+//      TODO: make sure it is the right kind of error, also, what is
+//       th file is larger then the matrix
       ifs.close ();
       throw std::invalid_argument{
           "The given file and matrix are not matching in size!"};
     }
   ifs.seekg (0, std::ifstream::beg);
-  ifs.read ((char *) mat._data, (long) matByteSize);
+  ifs.read ((char *) mat._data, (long) mat_byte_size);
 }
 
 Matrix &operator* (const float c, Matrix &mat)
@@ -241,7 +242,7 @@ std::ostream &operator<< (std::ostream &os, Matrix &mat)
     {
       for (int j = 1; j <= mat._dims->cols; j++)
         {
-          if (mat (i, j) >= 0.1)
+          if (mat (i, j) >= MINIMUM_TO_PRINT)
             {
               os << "  ";
             }

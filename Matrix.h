@@ -3,6 +3,7 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#define MINIMUM_TO_PRINT 0.1
 #include <cmath>
 #include <iostream>
 #include <fstream>

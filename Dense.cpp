@@ -4,7 +4,7 @@
 
 #include "Dense.h"
 
-Dense::Dense (const Matrix& weight, const Matrix& bias, ActivationType act_type)
+Dense::Dense(const Matrix& weight, const Matrix& bias, ActivationType act_type)
     : weight (weight), bias (bias), act_type (act_type)
 {}
 Matrix Dense::get_weights () const
