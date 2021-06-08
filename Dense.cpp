@@ -7,7 +7,7 @@
 Dense::Dense (const Matrix& weight, const Matrix& bias, ActivationType act_type)
     : weight (weight), bias (bias), act_type (act_type)
 {}
-Matrix Dense::get_weight () const
+Matrix Dense::get_weights () const
 {
   return weight;
 }

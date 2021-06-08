@@ -8,7 +8,7 @@ class Dense {
 
   Dense (const Matrix& weight, const Matrix& bias, ActivationType act_type);
 
-  Matrix get_weight () const;
+  Matrix get_weights () const;
   Matrix get_bias () const;
   ActivationType get_activation  () const;
 
