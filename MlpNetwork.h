@@ -3,7 +3,9 @@
 #ifndef MLPNETWORK_H
 #define MLPNETWORK_H
 
-#include "Matrix.h"
+#include "Dense.h"
+#include "Digit.h"
+
 
 #define MLP_SIZE 4
 
@@ -18,6 +20,20 @@ const matrix_dims bias_dims[]    = {{128, 1},
                                     {20, 1},
                                     {10, 1}};
 
-// Insert MlpNetwork class here...
+class MlpNetwork{
+
+ public:
+
+  MlpNetwork (Matrix *weights, Matrix *biases);
+
+  digit operator() (Matrix const &mat);
+
+
+ private:
+  Matrix _weights[MLP_SIZE];
+  Matrix _biases[MLP_SIZE];
+
+
+};
 
 #endif // MLPNETWORK_H
