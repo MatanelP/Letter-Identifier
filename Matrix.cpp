@@ -5,49 +5,93 @@
 
 // Constructors:
 
+/**
+ * Creates a new matrix with the specified rows and columns.
+ * @param rows, int - number of rows.
+ * @param cols, int - number of columns.
+ */
 Matrix::Matrix (int rows, int cols)
 {
-//  _dims = new matrix_dims;
   _dims.rows = rows;
   _dims.cols = cols;
-  _data = new float[rows * cols]{0}; //TODO: are all set to 0's?
+  _size = _dims.rows * _dims.cols;
+  _data = new (std::nothrow) float[rows * cols]{0};
+  if (_data == nullptr)
+    {
+      std::cerr << "Error: Allocation returned nullptr\n";
+      exit (EXIT_FAILURE);
+    }
 }
 
+/**
+ * Creates a new matrix with the 1 row and 1 column.
+ */
 Matrix::Matrix () : Matrix (1, 1)
 {}
 
+/**
+ * Creates a new matrix witch is identical to the given matrix.
+ * @param other, Matrix - another matrix to copies data and values from.
+ */
 Matrix::Matrix (const Matrix &other)
 {
-//  _dims = new matrix_dims;
   _dims.cols = other._dims.cols;
   _dims.rows = other._dims.rows;
-  _data = new float[_dims.rows * _dims.cols]{0}; //TODO: are all set to 0's?
+  _size = _dims.rows * _dims.cols;
+  _data = new (std::nothrow) float[_size]{0};
+  if (_data == nullptr)
+    {
+      std::cerr << "Error: Allocation returned nullptr\n";
+      exit (EXIT_FAILURE);
+    }
   for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
     {
       _data[i] = other._data[i];
     }
 }
+
 // Destructor:
+/**
+ * freeing up memory allocated for the matrix 1 dim array of floats.
+ */
 Matrix::~Matrix ()
 {
   delete[] _data;
 }
 
 // Getters:
+
+/**
+ * @return an int, the number of rows.
+ */
 int Matrix::get_rows () const
 {
   return _dims.rows;
 }
 
+/**
+ * @return an int, the number of columns.
+ */
 int Matrix::get_cols () const
 {
   return _dims.cols;
 }
 
 // Methods:
+
+/**
+ * Transforms a matrix into its transpose matrix.
+ * @return a reference to the Transformed matrix.
+ */
 Matrix &Matrix::transpose ()
 {
-  auto *new_array = new float[_dims.rows * _dims.cols];
+  auto *new_array = new (std::nothrow) float[_size];
+  if (new_array == nullptr)
+    {
+      std::cerr << "Error: Allocation returned nullptr\n";
+      exit (EXIT_FAILURE);
+    }
+
   for (int i = 0; i < _dims.rows; ++i)
     {
       for (int j = 0; j < _dims.cols; ++j)
@@ -61,22 +105,27 @@ Matrix &Matrix::transpose ()
     }
   delete[] _data;
   _data = new_array;
-  swap (_dims.cols, _dims.rows); //todo: can i use swap?
+  swap (_dims.cols, _dims.rows);
   return *this;
 }
 
+/**
+ * Transforms a matrix into a column vector.
+ * @return a reference to the Transformed matrix.
+ */
 Matrix &Matrix::vectorize ()
 {
-  //todo: make sure you need to concatenate col by col and not wor by row.
-//  transpose ();
   _dims.rows *= _dims.cols;
   _dims.cols = 1;
   return *this;
 }
 
-void Matrix::plain_print ()
+/**
+ * Prints matrix elements.
+ */
+void Matrix::plain_print () const
 {
-  for (int i = 0; i < _dims.cols * _dims.rows; ++i)
+  for (int i = 0; i < _size; ++i)
     {
       cout << _data[i] << " ";
       if (!((i + 1) % _dims.cols))
@@ -87,54 +136,102 @@ void Matrix::plain_print ()
   cout << endl;
 }
 
-Matrix Matrix::dot (const Matrix &other)
+/**
+ * Returns a matrix which is the dot product of this matrix and another matrix m:
+ * @param other, Matrix - another matrix for the calculation.
+ * @return a new matrix which is the dot product.
+ */
+Matrix Matrix::dot (const Matrix &other) const
 {
-  //todo: what if other matrix is not the same dims as this matrix?
+  if (other._dims.cols != _dims.cols || other._dims.rows != _dims.rows)
+    {
+      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      exit (EXIT_FAILURE);
+    }
   Matrix new_matrix (*this);
-  for (int i = 0; i < _dims.cols * _dims.rows; ++i)
+  for (int i = 0; i < _size; ++i)
     {
       new_matrix._data[i] *= other._data[i];
     }
   return new_matrix;
 }
 
-float Matrix::norm ()
+/**
+ * @return the Frobenius norm of the matrix.
+ */
+float Matrix::norm () const
 {
   float norm = 0;
-  for (int i = 0; i < _dims.cols * _dims.rows; ++i)
+  for (int i = 0; i < _size; ++i)
     {
       norm += std::abs (_data[i] * _data[i]);
     }
   return std::sqrt (norm);
 }
 
-
+/**
+ * Fills matrix elements from a binary file.
+ * @param ifs, ifstream- the input binary file.
+ * @param mat
+ * @return the given ifs.
+ */
+std::ifstream &read_binary_file (std::ifstream &ifs, Matrix &mat)
+{
+  ifs.seekg (0, std::ifstream::end);
+  auto mat_byte_size = mat._size * sizeof (float);
+  if ((size_t) ifs.tellg () < mat_byte_size)
+    {
+      ifs.close ();
+      std::cerr << "Error: The file and matrix are not matching in size!\n";
+      exit (EXIT_FAILURE);
+    }
+  ifs.seekg (0, std::ifstream::beg);
+  ifs.read ((char *) mat._data, (long) mat_byte_size);
+  return ifs;
+}
 
 // Operators:
 
-Matrix Matrix::operator+ (const Matrix &mat)
+/**
+   * Matrices addition.
+   * @param mat - Matrix, the other matrix to add.
+   * @return a new Matrix witch is the sum of the two.
+   */
+Matrix Matrix::operator+ (const Matrix &mat) const
 {
-  //todo: what if the matrices are mismatching in size?
-  Matrix new_mat(_dims.rows, mat._dims.cols);
-
-  for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
+  if (mat._dims.cols != _dims.cols || mat._dims.rows != _dims.rows)
+    {
+      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      exit (EXIT_FAILURE);
+    }
+  Matrix new_mat (_dims.rows, mat._dims.cols);
+  for (int i = 0; i < _size; ++i)
     {
       new_mat._data[i] = mat._data[i] + _data[i];
     }
   return new_mat;
 }
 
+/**
+  * takes a matrix and changes the current matrix to be equal to it.
+  * @param mat - Matrix, the other matrix.
+  * @return a reference to the current matrix after the changes.
+  */
 Matrix &Matrix::operator= (const Matrix &mat)
 {
-  //todo: self assignment
-  //todo: what if the matrices are mismatching in size?
+  if (this == &mat)
+    {
+      return *this;
+    }
+
   _dims.cols = mat._dims.cols;
   _dims.rows = mat._dims.rows;
+  _size = _dims.rows * _dims.cols;
 
-  delete[] _data; //todo: should i do it?
-  _data = new float[_dims.rows * _dims.cols];
+  delete[] _data;
+  _data = new float[_size];
 
-  for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
+  for (int i = 0; i < _size; ++i)
     {
       _data[i] = mat._data[i];
     }
@@ -142,11 +239,20 @@ Matrix &Matrix::operator= (const Matrix &mat)
   return *this;
 }
 
-Matrix Matrix::operator* (const Matrix &mat)
+/**
+  * Matrices multiplication.
+  * @param mat - Matrix, the other matrix.
+  * @return a new Matrix witch is the multiply of the two.
+  */
+Matrix Matrix::operator* (const Matrix &mat) const
 {
-  //todo: what if the matrices are mismatching in dimensions for mul?
-  Matrix new_mat(_dims.rows, mat._dims.cols);
+  if (mat._dims.rows != _dims.cols)
+    {
+      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      exit (EXIT_FAILURE);
+    }
 
+  Matrix new_mat (_dims.rows, mat._dims.cols);
   for (int i = 0; i < _dims.rows; i++)
     {
       for (int j = 0; j < mat._dims.cols; j++)
@@ -164,79 +270,125 @@ Matrix Matrix::operator* (const Matrix &mat)
   return new_mat;
 }
 
-Matrix Matrix::operator* (const float c)
+/**
+   * Scalar multiplication on the right.
+   * @param c - float, the scalar to multiply with.
+   * @return a new Matrix witch is the multiply of the two.
+   */
+Matrix Matrix::operator* (const float c) const
 {
-  //todo: what if the matrices are mismatching in dimensions for mul?
-  Matrix new_mat(_dims.rows, _dims.cols);
+  Matrix new_mat (_dims.rows, _dims.cols);
 
-  for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
+  for (int i = 0; i < _size; ++i)
     {
       new_mat._data[i] = _data[i] * c;
     }
   return new_mat;
 }
 
+/**
+ * Scalar multiplication on the left.
+ * @param c - float, the scalar to multiply with.
+ * @param mat - Matrix, the matrix to multiply with.
+ * @return a new Matrix witch is the multiply of the two.
+ */
+Matrix operator* (const float c, Matrix &mat)
+{
+  return mat * c;
+}
+
+/**
+ * Matrix addition accumulation.
+ * @param mat the other matrix to add to the current one.
+ * @return a reference to the current matrix after the changes.
+ */
 Matrix &Matrix::operator+= (const Matrix &mat)
 {
-  //todo: what if the matrices are mismatching in dimensions for mul?
-  for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
+  if (mat._dims.cols != _dims.cols || mat._dims.rows != _dims.rows)
+    {
+      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      exit (EXIT_FAILURE);
+    }
+  for (int i = 0; i < _size; ++i)
     {
       _data[i] += mat._data[i];
     }
   return *this;
 }
 
+/**
+ * Parenthesis indexing.
+ * @param i - int, indicating the requested row.
+ * @param j - int, indicating the requested column.
+ * @return a reference to the value represented as (i,j) in the matrix.
+ */
 float &Matrix::operator() (int i, int j)
 {
-  //todo: what about out of bounds errors?
-  return _data[(i) * _dims.cols + j];
+  if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size )
+    {
+      std::cerr << "Error: The index given is out of bounds!\n";
+      exit (EXIT_FAILURE);
+    }
+  return _data[i * _dims.cols + j];
 }
 
+/**
+   * Parenthesis indexing.
+   * @param i - int, indicating the requested row.
+   * @param j - int, indicating the requested column.
+   * @return the value represented as (i,j) in the matrix as a constant.
+   */
 float Matrix::operator() (int i, int j) const
 {
-  //todo: what about out of bounds errors?
-  return _data[(i) * _dims.cols + j];
+  if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size )
+    {
+      std::cerr << "Error: The index given is out of bounds!\n";
+      exit (EXIT_FAILURE);
+    }
+  return _data[i * _dims.cols + j];
 }
 
+/**
+   * Brackets indexing.
+   * @param i - int, indicating the requested element position in the array.
+   * @return a reference to the value represented as _data[i] in the matrix.
+   */
 float &Matrix::operator[] (int i)
 {
-  //todo: what about out of bounds errors?
+  if (i < 0 || _size <= i)
+    {
+      std::cerr << "Error: The index given is out of bounds!\n";
+      exit (EXIT_FAILURE);
+    }
   return _data[i];
 }
 
+/**
+   * Brackets indexing.
+   * @param i - int, indicating the requested element position in the array.
+   * @return  the value represented as _data[i] in the matrix as a constant.
+   */
 float Matrix::operator[] (int i) const
 {
-  //todo: what about out of bounds errors?
+  if (i < 0 || _size <= i)
+    {
+      std::cerr << "Error: The index given is out of bounds!\n";
+      exit (EXIT_FAILURE);
+    }
   return _data[i];
 }
 
-void read_binary_file (std::ifstream &ifs, Matrix &mat)
+/**
+   * Pretty export of the matrix.
+   * @param os - ostream, the output stream.
+   * @param mat - Matrix, to export.
+   * @return ostream, with the representation wanted.
+   */
+std::ostream &operator<< (std::ostream &os, const Matrix &mat)
 {
-  ifs.seekg (0, std::ifstream::end);
-  auto mat_byte_size = mat.get_cols () * mat.get_rows () * sizeof (float);
-  if ((size_t) ifs.tellg () != mat_byte_size)
+  for (int i = 0; i < mat._dims.rows; i++)
     {
-//      TODO: make sure it is the right kind of error, also, what is
-//       th file is larger then the matrix
-      ifs.close ();
-      throw std::invalid_argument{
-          "The given file and matrix are not matching in size!"};
-    }
-  ifs.seekg (0, std::ifstream::beg);
-  ifs.read ((char *) mat._data, (long) mat_byte_size);
-}
-
-Matrix operator* (const float c, Matrix &mat)
-{
-  //todo: what if the matrices are mismatching in dimensions for mul?
-  return mat * c;
-}
-
-std::ostream &operator<< (std::ostream &os, Matrix &mat)
-{
-  for (int i = 1; i <= mat._dims.rows; i++)
-    {
-      for (int j = 1; j <= mat._dims.cols; j++)
+      for (int j = 0; j < mat._dims.cols; j++)
         {
           if (mat (i, j) >= MINIMUM_TO_PRINT)
             {
@@ -251,11 +403,4 @@ std::ostream &operator<< (std::ostream &os, Matrix &mat)
     }
 
   return os;
-}
-
-float assign_value (Matrix &mat, int index, float const value)
-{
-  //todo: what about out of bounds errors?
-  mat._data[index] = value;
-  return value;
 }
