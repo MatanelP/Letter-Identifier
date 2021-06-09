@@ -137,7 +137,7 @@ void Matrix::plain_print () const
 }
 
 /**
- * Returns a matrix which is the dot product of this matrix and another matrix m:
+ * Returns a matrix which is the dot product of this matrix and another.
  * @param other, Matrix - another matrix for the calculation.
  * @return a new matrix which is the dot product.
  */
