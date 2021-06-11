@@ -9,6 +9,10 @@
 
 #define MINIMUM_TO_PRINT 0.1
 
+#define ALLOC_FAIL_ERR_MSG "Error: Allocation returned nullptr\n"
+#define MISMATCHING_MATRICES_ERR_MSG "Error: Matrices are not matching\n"
+#define OUT_OF_BOUND_ERR_MSG "Error: The index given is out of bounds!\n"
+
 using std::cout;
 using std::endl;
 using std::swap;

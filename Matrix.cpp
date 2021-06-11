@@ -3,8 +3,8 @@
 //
 #include "Matrix.h"
 
-// Constructors:
 
+// Constructors:
 /**
  * Creates a new matrix with the specified rows and columns.
  * @param rows, int - number of rows.
@@ -18,7 +18,7 @@ Matrix::Matrix (int rows, int cols)
   _data = new (std::nothrow) float[rows * cols]{0};
   if (_data == nullptr)
     {
-      std::cerr << "Error: Allocation returned nullptr\n";
+      std::cerr << ALLOC_FAIL_ERR_MSG;
       exit (EXIT_FAILURE);
     }
 }
@@ -41,7 +41,7 @@ Matrix::Matrix (const Matrix &other)
   _data = new (std::nothrow) float[_size]{0};
   if (_data == nullptr)
     {
-      std::cerr << "Error: Allocation returned nullptr\n";
+      std::cerr << ALLOC_FAIL_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
@@ -88,7 +88,7 @@ Matrix &Matrix::transpose ()
   auto *new_array = new (std::nothrow) float[_size];
   if (new_array == nullptr)
     {
-      std::cerr << "Error: Allocation returned nullptr\n";
+      std::cerr << ALLOC_FAIL_ERR_MSG;
       exit (EXIT_FAILURE);
     }
 
@@ -145,7 +145,7 @@ Matrix Matrix::dot (const Matrix &other) const
 {
   if (other._dims.cols != _dims.cols || other._dims.rows != _dims.rows)
     {
-      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   Matrix new_matrix (*this);
@@ -182,7 +182,7 @@ std::ifstream &read_binary_file (std::ifstream &ifs, Matrix &mat)
   if ((size_t) ifs.tellg () < mat_byte_size)
     {
       ifs.close ();
-      std::cerr << "Error: The file and matrix are not matching in size!\n";
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   ifs.seekg (0, std::ifstream::beg);
@@ -201,7 +201,7 @@ Matrix Matrix::operator+ (const Matrix &mat) const
 {
   if (mat._dims.cols != _dims.cols || mat._dims.rows != _dims.rows)
     {
-      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   Matrix new_mat (_dims.rows, mat._dims.cols);
@@ -248,7 +248,7 @@ Matrix Matrix::operator* (const Matrix &mat) const
 {
   if (mat._dims.rows != _dims.cols)
     {
-      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
       exit (EXIT_FAILURE);
     }
 
@@ -306,7 +306,7 @@ Matrix &Matrix::operator+= (const Matrix &mat)
 {
   if (mat._dims.cols != _dims.cols || mat._dims.rows != _dims.rows)
     {
-      std::cerr << "Error: Matrices are not matching in dimensions\n";
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   for (int i = 0; i < _size; ++i)
@@ -324,9 +324,9 @@ Matrix &Matrix::operator+= (const Matrix &mat)
  */
 float &Matrix::operator() (int i, int j)
 {
-  if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size )
+  if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size)
     {
-      std::cerr << "Error: The index given is out of bounds!\n";
+      std::cerr << OUT_OF_BOUND_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   return _data[i * _dims.cols + j];
@@ -340,9 +340,9 @@ float &Matrix::operator() (int i, int j)
    */
 float Matrix::operator() (int i, int j) const
 {
-  if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size )
+  if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size)
     {
-      std::cerr << "Error: The index given is out of bounds!\n";
+      std::cerr << OUT_OF_BOUND_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   return _data[i * _dims.cols + j];
@@ -357,7 +357,7 @@ float &Matrix::operator[] (int i)
 {
   if (i < 0 || _size <= i)
     {
-      std::cerr << "Error: The index given is out of bounds!\n";
+      std::cerr << OUT_OF_BOUND_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   return _data[i];
@@ -372,7 +372,7 @@ float Matrix::operator[] (int i) const
 {
   if (i < 0 || _size <= i)
     {
-      std::cerr << "Error: The index given is out of bounds!\n";
+      std::cerr << OUT_OF_BOUND_ERR_MSG;
       exit (EXIT_FAILURE);
     }
   return _data[i];
