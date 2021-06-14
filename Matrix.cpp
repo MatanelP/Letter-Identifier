@@ -12,13 +12,18 @@
  */
 Matrix::Matrix (int rows, int cols)
 {
+  if (rows <= 0 || cols <= 0)
+    {
+      std::cerr << BAD_PARAMETERS_ERR_MSG << endl;
+      exit (EXIT_FAILURE);
+    }
   _dims.rows = rows;
   _dims.cols = cols;
   _size = _dims.rows * _dims.cols;
   _data = new (std::nothrow) float[rows * cols]{0};
   if (_data == nullptr)
     {
-      std::cerr << ALLOC_FAIL_ERR_MSG;
+      std::cerr << ALLOC_FAIL_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
 }
@@ -41,7 +46,7 @@ Matrix::Matrix (const Matrix &other)
   _data = new (std::nothrow) float[_size]{0};
   if (_data == nullptr)
     {
-      std::cerr << ALLOC_FAIL_ERR_MSG;
+      std::cerr << ALLOC_FAIL_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   for (int i = 0; i < (_dims.rows * _dims.cols); ++i)
@@ -88,7 +93,7 @@ Matrix &Matrix::transpose ()
   auto *new_array = new (std::nothrow) float[_size];
   if (new_array == nullptr)
     {
-      std::cerr << ALLOC_FAIL_ERR_MSG;
+      std::cerr << ALLOC_FAIL_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
 
@@ -145,7 +150,7 @@ Matrix Matrix::dot (const Matrix &other) const
 {
   if (other._dims.cols != _dims.cols || other._dims.rows != _dims.rows)
     {
-      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   Matrix new_matrix (*this);
@@ -182,7 +187,7 @@ std::ifstream &read_binary_file (std::ifstream &ifs, Matrix &mat)
   if ((size_t) ifs.tellg () < mat_byte_size)
     {
       ifs.close ();
-      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   ifs.seekg (0, std::ifstream::beg);
@@ -201,7 +206,7 @@ Matrix Matrix::operator+ (const Matrix &mat) const
 {
   if (mat._dims.cols != _dims.cols || mat._dims.rows != _dims.rows)
     {
-      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   Matrix new_mat (_dims.rows, mat._dims.cols);
@@ -248,7 +253,7 @@ Matrix Matrix::operator* (const Matrix &mat) const
 {
   if (mat._dims.rows != _dims.cols)
     {
-      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
 
@@ -306,7 +311,7 @@ Matrix &Matrix::operator+= (const Matrix &mat)
 {
   if (mat._dims.cols != _dims.cols || mat._dims.rows != _dims.rows)
     {
-      std::cerr << MISMATCHING_MATRICES_ERR_MSG;
+      std::cerr << MISMATCHING_MATRICES_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   for (int i = 0; i < _size; ++i)
@@ -326,7 +331,7 @@ float &Matrix::operator() (int i, int j)
 {
   if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size)
     {
-      std::cerr << OUT_OF_BOUND_ERR_MSG;
+      std::cerr << OUT_OF_BOUND_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   return _data[i * _dims.cols + j];
@@ -342,7 +347,7 @@ float Matrix::operator() (int i, int j) const
 {
   if (i * _dims.cols + j < 0 || i * _dims.cols + j >= _size)
     {
-      std::cerr << OUT_OF_BOUND_ERR_MSG;
+      std::cerr << OUT_OF_BOUND_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   return _data[i * _dims.cols + j];
@@ -357,7 +362,7 @@ float &Matrix::operator[] (int i)
 {
   if (i < 0 || _size <= i)
     {
-      std::cerr << OUT_OF_BOUND_ERR_MSG;
+      std::cerr << OUT_OF_BOUND_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   return _data[i];
@@ -372,7 +377,7 @@ float Matrix::operator[] (int i) const
 {
   if (i < 0 || _size <= i)
     {
-      std::cerr << OUT_OF_BOUND_ERR_MSG;
+      std::cerr << OUT_OF_BOUND_ERR_MSG << endl;
       exit (EXIT_FAILURE);
     }
   return _data[i];
